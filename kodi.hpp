@@ -47,7 +47,7 @@ std::string readconfig(std::string name, char *db_path)
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 { 
     size_t realsize = size * nmemb;
-    buffer.append(contents, realsize);
+    buffer.append((char*)contents, realsize);
     return realsize;
 }
 
