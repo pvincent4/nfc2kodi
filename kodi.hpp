@@ -47,9 +47,7 @@ std::string readconfig(std::string name, char *db_path)
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 { 
     size_t realsize = size * nmemb;
-    buffer.clear();
-    buffer.append((char*)contents, realsize);
-    printf("\nPage data:\n%s\n", buffer.c_str());
+    buffer.append(contents, realsize);
     return realsize;
 }
 
@@ -64,8 +62,8 @@ std::string get_url(std::string url, std::string params)
   
   curl = curl_easy_init();
   if(curl) {
+  	buffer.clear();
     params = curl_easy_unescape(curl, params.c_str(), params.length(),0);
-
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, params.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
