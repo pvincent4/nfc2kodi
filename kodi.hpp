@@ -62,7 +62,6 @@ std::string get_url(std::string url, std::string params)
   std::cout << "" << params << "\n\n";
   struct curl_slist *headers = NULL;
   
-  buffer.clear();
   curl = curl_easy_init();
   if(curl) {
     params = curl_easy_unescape(curl, params.c_str(), params.length(),0);
@@ -118,7 +117,6 @@ std::string object2playlist(std::string type, std::string value, int limit)
 
           return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
-      j.clear();
 }
 
 static void similarartist2playlist(std::string name, int nb_artists, int nb_songs)
@@ -143,5 +141,4 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
           printf("2\n");
           printf("3\n");
         }
-      j1.clear();
 }
