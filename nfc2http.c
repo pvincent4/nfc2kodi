@@ -287,7 +287,7 @@ main(int argc, const char *argv[])
                 ret = sqlite3_exec(db, sql1, callback, (void*)data, &zErrMsg);
                 if( ret != SQLITE_OK ){
                   fprintf(stderr, "SQL error: %s\n", zErrMsg);
-                  sqlite3_free(zErrMsg);
+                  //sqlite3_free(zErrMsg);
                 }
           }
 
