@@ -96,7 +96,7 @@ std::string object2playlist(std::string type, std::string value, int limit)
     auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" } }, \"id\": \"libSongs\"}";
     get_url(url_base,url_bis);
     //https://github.com/nlohmann/json#stl-like-access
-      auto j = json::parse(buffer);
+      auto j = json::parse(buffer.c_str());
 
       //Parsing songs
         int nb_songs = j["result"]["songs"].size();
@@ -127,7 +127,7 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
     auto url_lastfm = "http://ws.audioscrobbler.com/2.0/";
     auto json_lastfm = "method=artist.getsimilar&api_key="+lastfm_key+"&format=json&limit="+std::to_string(nb_artists)+"&autocorrect=1&artist="+name;
     get_url(url_lastfm, json_lastfm);
-    auto j1 = json::parse(buffer);
+    auto j1 = json::parse(buffer.c_str());
     //std::cout << j1.dump(4) << std::endl;
     //std::cout << j1;
 
