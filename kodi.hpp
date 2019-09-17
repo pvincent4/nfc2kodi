@@ -5,7 +5,12 @@ static char *db_path = "kodinfc.sqlite";
 static std::string url_base = "http://osmc.local/jsonrpc";
 static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
 using json = nlohmann::json;
-      
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+};
+static struct MemoryStruct chunk;
+ 
 std::string readconfig(std::string name, char *db_path)
 {
    sqlite3 *db;
@@ -47,8 +52,50 @@ std::string readconfig(std::string name, char *db_path)
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 { 
     size_t realsize = size * nmemb;
+    buffer.clear();
     buffer.append((char*)contents, realsize);
     return realsize;
+}
+
+static size_t WriteCallback0(void *contents, size_t size, size_t nmemb, void *userp)
+{
+	//https://curl.haxx.se/libcurl/c/asiohiper.html
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+ 
+  printf("a1\n");
+  char *ptr = NULL;
+  ptr = (char*)realloc(mem->memory, mem->size + realsize + 1);
+  printf("a2\n");
+
+  if(ptr == NULL) {
+    /* out of memory! */ 
+    printf("not enough memory (realloc returned NULL)\n");
+    return 0;
+  }
+ 
+  mem->memory = ptr;
+  memcpy(&(mem->memory[mem->size]), (char*)contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+ 
+  return realsize;
+}
+
+/* CURLOPT_WRITEFUNCTION */ 
+static size_t write_cb(void *ptr, size_t size, size_t nmemb, void *data)
+{
+  size_t written = size * nmemb;
+  char *pBuffer = (char *)malloc(written + 1);
+ 
+  strncpy(pBuffer, (const char *)ptr, written);
+  pBuffer[written] = '\0';
+ 
+  //fprintf("\nData : %s\n", pBuffer);
+ 
+  free(pBuffer);
+ 
+  return written;
 }
 
 std::string get_url(std::string url, std::string params)
@@ -56,17 +103,19 @@ std::string get_url(std::string url, std::string params)
   CURL *curl;
   CURLcode res_curl;
   std::string urlb;
+  struct curl_slist *headers = NULL;
+  
   std::cout << "\n\n" << url << "\n";
   std::cout << "" << params << "\n\n";
-  struct curl_slist *headers = NULL;
   
   curl = curl_easy_init();
   if(curl) {
-  	buffer.clear();
+  	//buffer.clear();
     params = curl_easy_unescape(curl, params.c_str(), params.length(),0);
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, params.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
     headers = curl_slist_append(headers, "Expect:");
     headers = curl_slist_append(headers, "Content-Type: application/json");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -81,6 +130,7 @@ std::string get_url(std::string url, std::string params)
     }
 
       curl_easy_cleanup(curl);
+    printf("\nPage data:\n%s\n", buffer.c_str());
 
   }
 

@@ -45,7 +45,10 @@ int
 main(int argc, const char *argv[])
 {
 
-  //Var declaration
+    //Var declaration
+    chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
+    chunk.size = 0;    /* no data at this point */
+
     //Player 0 : Audio | Player 1 : Vidéo
     std::string tab[5] = {"","","","",""};
     std::string id; //NFC id
@@ -91,6 +94,9 @@ main(int argc, const char *argv[])
           printf("Failed to open conn: %d\n", ret);
           return(1);
       }
+      else {
+      fprintf(stderr, "Opened database successfully\n");
+      }
       //printf ("DB:%i",ret);
 
 
@@ -120,12 +126,12 @@ main(int argc, const char *argv[])
                   char *new0 = (char*)sqlite3_column_text(statement, 4); if(new0) option_new = new0;
                   char *value = (char*)sqlite3_column_text(statement, 2);
                   int stats0 = sqlite3_column_int(statement, 5);  if(stats0) stats = stats0; else stats = 0;
-
+                  printf("ROW : %s\n",type.c_str());
                   //Clean and stop
                   //get_url(url_base,url_stop0);
                   //get_url(url_base,url_stop1);
-                  get_url(url_base,playlist_clear_video);
-                  get_url(url_base,playlist_clear_musique);
+                  //get_url(url_base,playlist_clear_video);
+                  //get_url(url_base,playlist_clear_musique);
 
                   if (type.compare("directory_album") == 0)	url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/music/"+value+"\"}";
                   if (type.compare("video") == 0)	url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/video/"+value+"\"}" + url3;
@@ -139,6 +145,7 @@ main(int argc, const char *argv[])
                   if (type.compare("podcast") == 0)  url = url2_2 + "{\"directory\":\"rss://"+value+"\"}" ;
                   if (type.compare("musique_album") == 0) 
                   {
+                    printf("musique_album\n");
                       //Add album songs 
                          std::string artist_name = object2playlist("albumid", value, 30);
 
