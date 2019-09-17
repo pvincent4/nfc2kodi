@@ -114,7 +114,7 @@ std::string get_url(std::string url, std::string params)
     params = curl_easy_unescape(curl, params.c_str(), params.length(),0);
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, params.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
     headers = curl_slist_append(headers, "Expect:");
     headers = curl_slist_append(headers, "Content-Type: application/json");
