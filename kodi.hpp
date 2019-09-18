@@ -124,7 +124,7 @@ static void get_url(std::string url, std::string params)
      
     /* Perform the request, res_curl will get the return code */ 
     res_curl = curl_easy_perform(curl);
-    if(curl_easy_perform(curl)!=CURLE_OK)
+    if(res_curl=CURLE_OK)
     {
         fprintf(stderr, "Failed to get web page\n");
     }
