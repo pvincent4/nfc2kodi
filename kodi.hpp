@@ -140,6 +140,7 @@ std::string get_url(std::string url, std::string params)
     //printf("\nPage data:\n%s\n", buffer.c_str());
 
   }
+  	printf("get_url7\n");
 
 }
 
