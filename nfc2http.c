@@ -235,11 +235,11 @@ main(int argc, const char *argv[])
                       //Add similar artists songs
                           similarartist2playlist(artist_name, 3, 3);
                     }
-                if (option_random.compare("TRUE") == 0)  
+                if ((option_random.compare("TRUE") == 0) || (stats > 5)) 
                    {
                     url = url + url3;
                     get_url(url_base,url_setshuffle);                    
-                  }
+                    }
                   else url = url + url3_2;
 
               }
@@ -257,14 +257,22 @@ main(int argc, const char *argv[])
 	//Performing request and Double Request
      	//sleep(1);
 
-     	get_url(url_base,url);
+     	
 
        if (type.compare("youtube_playlist") == 0)  get_url(url_base,url_play_playlist);
        if (type.compare("podcast") == 0)  get_url(url_base,url_play_playlist);
        if (type.compare("musique_artist") == 0)  get_url(url_base,url_play_playlist_musique);
        if (type.compare("musique_album") == 0)  get_url(url_base,url_play_playlist_musique);
-       if (type.compare("directory_album") == 0) get_url(url_base,url_visualisation);
-       if (type.compare("podcast") == 0) get_url(url_base,url_visualisation);
+       if (type.compare("directory_album") == 0) 
+          {
+            get_url(url_base,url);
+            get_url(url_base,url_visualisation);
+          }
+       if (type.compare("podcast") == 0) 
+        {
+          get_url(url_base,url);
+          get_url(url_base,url_visualisation);
+        }
 
         }
 

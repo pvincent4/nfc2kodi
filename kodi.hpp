@@ -130,11 +130,9 @@ static void get_url(std::string url, std::string params)
     }
 
     curl_easy_cleanup(curl);
-
     //printf("\nPage data:\n%s\n", buffer.c_str());
-
   }
-
+  sleep(500);         // wait for 2 seconds before closing
 }
 
 std::string object2playlist(std::string type, std::string value, int limit)
@@ -160,19 +158,15 @@ std::string object2playlist(std::string type, std::string value, int limit)
         {
           for (int i = 0; i < nb_songs; ++i)
           {
-            printf("1\n");
             int songid = j["result"]["songs"][i]["songid"].get<int>();
             //Add songs to playlist
             url_bis = pre_url + "\"method\": \"Playlist.Add\", \"params\": { \"playlistid\": 0,\"item\": { \"songid\": "+std::to_string(songid)+" } }}";
             get_url(url_base,url_bis);
-            printf("2\n");
-
           }
 
           return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
-        else
-        	return "";
+        else	return ("");
 }
 
 static void similarartist2playlist(std::string name, int nb_artists, int nb_songs)
