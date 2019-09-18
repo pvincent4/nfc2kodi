@@ -52,7 +52,7 @@ std::string readconfig(std::string name, char *db_path)
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 { 
     size_t realsize = size * nmemb;
-    //buffer.clear();
+    buffer.clear();
     buffer.append((char*)contents, realsize);
     return realsize;
 }
@@ -93,7 +93,7 @@ static size_t write_cb(void *ptr, size_t size, size_t nmemb, void *data)
  
   //fprintf("\nData : %s\n", pBuffer);
  
-  //free(pBuffer);
+  free(pBuffer);
  
   return written;
 }
@@ -110,12 +110,17 @@ std::string get_url(std::string url, std::string params)
   
   curl = curl_easy_init();
   if(curl) {
-  	//buffer.clear();
+  	buffer.clear();
+  	printf("get_url1\n");
     params = curl_easy_unescape(curl, params.c_str(), params.length(),0);
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  	printf("get_url2\n");
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, params.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
+  	printf("get_url3\n");
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+  	printf("get_url4\n");
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+  	printf("get_url5\n");
     headers = curl_slist_append(headers, "Expect:");
     headers = curl_slist_append(headers, "Content-Type: application/json");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -129,7 +134,9 @@ std::string get_url(std::string url, std::string params)
         fprintf(stderr, "Failed to get web page\n");
     }
 
-      curl_easy_cleanup(curl);
+    curl_easy_cleanup(curl);
+  	printf("get_url6\n");
+
     printf("\nPage data:\n%s\n", buffer.c_str());
 
   }

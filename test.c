@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <string>
+#include "string.h"
 #include <regex.h>
 #include <cstring>
 #include <sstream>
@@ -10,6 +10,7 @@
 #include <curl/curl.h>
 #include <sqlite3.h>
 #include <ctype.h>
+#include <stdint-gcc.h>
 #include "json.hpp"
 #include "kodi.hpp"
 
