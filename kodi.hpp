@@ -98,7 +98,7 @@ static size_t write_cb(void *ptr, size_t size, size_t nmemb, void *data)
   return written;
 }
 
-std::string get_url(std::string url, std::string params)
+static void get_url(std::string url, std::string params)
 {
   CURL *curl;
   CURLcode res_curl;
