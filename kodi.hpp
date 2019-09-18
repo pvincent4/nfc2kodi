@@ -140,19 +140,19 @@ static void get_url(std::string url, std::string params)
 std::string object2playlist(std::string type, std::string value, int limit)
 {
     // Get Songslists based on artisrid, albumid or artist
-	    printf("object2playlist1\n");
+	    //printf("object2playlist1\n");
 	    if (type.compare("artist")==0) value = "\""+value+"\"";
 	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" } }, \"id\": \"libSongs\"}";
-		printf("object2playlist2\n");
+		//printf("object2playlist2\n");
 	    get_url(url_base,url_bis);
-	    printf("object2playlist3\n");
+	    //printf("object2playlist3\n");
 	    //https://github.com/nlohmann/json#stl-like-access
     	auto j = json::parse(buffer.c_str());
-	    printf("object2playlist4\n");
+	    //printf("object2playlist4\n");
 
       //Parsing songs
         int nb_songs = j["result"]["songs"].size();
-	    printf("object2playlist5\n");
+	    //printf("object2playlist5\n");
 
         printf("\nSng nb : %s\n", std::to_string(nb_songs).c_str());
         
@@ -186,15 +186,11 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
     //std::cout << j1;
 
       //Parsing artists
-    
         int nb_artists1 = j1["similarartists"]["artist"].size();
         for (int i = 0; i < nb_artists1; ++i)
         {
           printf("\ni : %s\n", std::to_string(i).c_str());          
           auto artist_name = j1["similarartists"]["artist"][i]["name"].get<std::string>();
-          printf("1\n");
           object2playlist("artist", artist_name, 5);
-          printf("2\n");
-          printf("3\n");
         }
 }
