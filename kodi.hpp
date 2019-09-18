@@ -146,14 +146,19 @@ std::string get_url(std::string url, std::string params)
 std::string object2playlist(std::string type, std::string value, int limit)
 {
     // Get Songslists based on artisrid, albumid or artist
-    if (type.compare("artist")==0) value = "\""+value+"\"";
-    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" } }, \"id\": \"libSongs\"}";
-    get_url(url_base,url_bis);
-    //https://github.com/nlohmann/json#stl-like-access
-      auto j = json::parse(buffer.c_str());
+	    printf("object2playlist1\n");
+	    if (type.compare("artist")==0) value = "\""+value+"\"";
+	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" } }, \"id\": \"libSongs\"}";
+		printf("object2playlist2\n");
+	    get_url(url_base,url_bis);
+	    printf("object2playlist3\n");
+	    //https://github.com/nlohmann/json#stl-like-access
+    	auto j = json::parse(buffer.c_str());
+	    printf("object2playlist4\n");
 
       //Parsing songs
         int nb_songs = j["result"]["songs"].size();
+	    printf("object2playlist5\n");
 
         printf("\nSng nb : %s\n", std::to_string(nb_songs).c_str());
         
