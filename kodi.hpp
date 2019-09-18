@@ -137,7 +137,7 @@ std::string get_url(std::string url, std::string params)
     curl_easy_cleanup(curl);
   	printf("get_url6\n");
 
-    printf("\nPage data:\n%s\n", buffer.c_str());
+    //printf("\nPage data:\n%s\n", buffer.c_str());
 
   }
 
