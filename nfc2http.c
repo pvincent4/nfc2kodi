@@ -222,10 +222,10 @@ main(int argc, const char *argv[])
                          std::string artist_name = object2playlist("albumid", value, 30);
 
                       //Add artist songs 
-                         object2playlist("artist", artist_name, 10);
+                         object2playlist("artist", artist_name, 15);
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, 3, 3);
+                          similarartist2playlist(artist_name, 5, 3);
                   }
                   if (type.compare("musique_artist") == 0)  
                   {
