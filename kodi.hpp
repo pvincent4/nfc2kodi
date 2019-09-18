@@ -132,7 +132,6 @@ static void get_url(std::string url, std::string params)
     curl_easy_cleanup(curl);
     //printf("\nPage data:\n%s\n", buffer.c_str());
   }
-  sleep(500);         // wait for 2 seconds before closing
 }
 
 std::string object2playlist(std::string type, std::string value, int limit)
@@ -166,7 +165,7 @@ std::string object2playlist(std::string type, std::string value, int limit)
 
           return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
-        else	return ("");
+        else	return "";
 }
 
 static void similarartist2playlist(std::string name, int nb_artists, int nb_songs)
@@ -175,6 +174,8 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
     auto url_lastfm = "http://ws.audioscrobbler.com/2.0/";
     auto json_lastfm = "method=artist.getsimilar&api_key="+lastfm_key+"&format=json&limit="+std::to_string(nb_artists)+"&autocorrect=1&artist="+name;
     get_url(url_lastfm, json_lastfm);
+    sleep(2);         // wait for 2 seconds before closing
+
     auto j1 = json::parse(buffer.c_str());
     //std::cout << j1.dump(4) << std::endl;
     //std::cout << j1;

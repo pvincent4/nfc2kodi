@@ -306,7 +306,7 @@ main(int argc, const char *argv[])
         tab[1] = id;
 
       //Second check
-        sleep(5);
+        sleep(1);
 
         tab[0] = tab[1];
 
