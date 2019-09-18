@@ -225,7 +225,7 @@ main(int argc, const char *argv[])
                          object2playlist("artist", artist_name, 15);
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, 5, 3);
+                          similarartist2playlist(artist_name, 3, 5);
                   }
                   if (type.compare("musique_artist") == 0)  
                   {

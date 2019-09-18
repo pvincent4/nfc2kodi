@@ -174,7 +174,7 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
     auto url_lastfm = "http://ws.audioscrobbler.com/2.0/";
     auto json_lastfm = "method=artist.getsimilar&api_key="+lastfm_key+"&format=json&limit="+std::to_string(nb_artists)+"&autocorrect=1&artist="+name;
     get_url(url_lastfm, json_lastfm);
-    sleep(20);         // wait for 2 seconds before closing
+    sleep(5);         // wait for 2 seconds before closing
 
     auto j1 = json::parse(buffer.c_str());
     //std::cout << j1.dump(4) << std::endl;
