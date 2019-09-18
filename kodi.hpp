@@ -178,6 +178,8 @@ std::string object2playlist(std::string type, std::string value, int limit)
 
           return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
+        else
+        	return "";
 }
 
 static void similarartist2playlist(std::string name, int nb_artists, int nb_songs)
