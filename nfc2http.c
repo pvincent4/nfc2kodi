@@ -228,8 +228,8 @@ main(int argc, const char *argv[])
                       //Add album songs 
                          std::string artist_name = object2playlist("albumid", value, 30, 0);
 
-                      //Add artist songs 
-                         object2playlist("artist", artist_name, 15, value);
+                      //Add other artist songs 
+                         object2playlist("artist", artist_name, 15, (int)value);
 
                       //Add similar artists songs
                           similarartist2playlist(artist_name, 3, 5);

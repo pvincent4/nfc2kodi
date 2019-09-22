@@ -194,7 +194,7 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
         {
           printf("\ni : %s\n", std::to_string(i).c_str());          
           auto artist_name = j1["similarartists"]["artist"][i]["name"].get<std::string>();
-          object2playlist("artist", artist_name, nb_songs);
+          object2playlist("artist", artist_name, nb_songs,0);
         }
     }
 	   catch (json::exception& e)
