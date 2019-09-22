@@ -141,7 +141,11 @@ std::string object2playlist(std::string type, std::string value, int limit, int 
 	    //printf("object2playlist1\n");
 	    if (type.compare("artist")==0) value = "\""+value+"\"";
 	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"id\": \"libSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" }";
-		if (type.compare("artist")==0) url_bis = url_bis + ", \"sort\":{\"order\":\"descending\",\"method\":\"playcount\"}";
+		//Sort by polpularity if artist initial entry and none album
+		if (type.compare("artistid")==0) 
+			url_bis = url_bis + ", \"sort\":{\"order\":\"descending\",\"method\":\"playcount\"}";
+		else
+			url_bis = url_bis + ", \"sort\":{\"order\":\"ascending\",\"method\":\"random\"}";
 		url_bis = url_bis + " }" + post_url;
 		  //printf("object2playlist2\n");
 	    get_url(url_base,url_bis);
