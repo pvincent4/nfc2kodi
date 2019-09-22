@@ -96,7 +96,6 @@ main(int argc, const char *argv[])
     std::string url3 = ",\"options\":{\"shuffled\":true}";
     std::string url3_2 = ",\"options\":{\"shuffled\":false}";
     std::string url4 = ",\"options\":{\"repeat\":\"all\"}";
-    std::string post_url = "}}";
     
     std::string playlist_clear_video = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":1}}";
     std::string playlist_clear_musique = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":0}}";
@@ -224,26 +223,26 @@ main(int argc, const char *argv[])
                   if (type.compare("playlist") == 0)	url = url2 + "{\"file\":\""+value+"\"}" ;
                   if (type.compare("radio") == 0)	url = url2 + "{\"file\":\"plugin://plugin.audio.radio_de/station/"+value+"\"}";
                   if (type.compare("podcast") == 0)  url = url2_2 + "{\"directory\":\"rss://"+value+"\"}" ;
-                  if (type.compare("musique_album") == 0) 
+                  if (type.compare("music_album") == 0) 
                   {
                       //Add album songs 
-                         std::string artist_name = object2playlist("albumid", value, 30);
+                         std::string artist_name = object2playlist("albumid", value, 30, 0);
 
                       //Add artist songs 
-                         object2playlist("artist", artist_name, 15);
+                         object2playlist("artist", artist_name, 15, value);
 
                       //Add similar artists songs
                           similarartist2playlist(artist_name, 3, 5);
                   }
-                  if (type.compare("musique_artist") == 0)  
+                  if (type.compare("music_artist") == 0)  
                   {
                       //Add artist songs 
-                         std::string artist_name = object2playlist("artistid", value, 45);
+                         std::string artist_name = object2playlist("artistid", value, 45, 0);
 
                       //Add similar artists songs
                           similarartist2playlist(artist_name, 3, 5);
                     }
-                if ((option_random.compare("TRUE") == 0) || (stats > 5)) 
+                if ((option_random.compare("TRUE") == 0) || (stats > 20)) 
                    {
                     url = url + url3;
                     get_url(url_base,url_setshuffle);                    
@@ -269,8 +268,8 @@ main(int argc, const char *argv[])
 
        if (type.compare("youtube_playlist") == 0)  get_url(url_base,url_play_playlist);
        if (type.compare("podcast") == 0)  get_url(url_base,url_play_playlist);
-       if (type.compare("musique_artist") == 0)  get_url(url_base,url_play_playlist_musique);
-       if (type.compare("musique_album") == 0)  get_url(url_base,url_play_playlist_musique);
+       if (type.compare("music_artist") == 0)  get_url(url_base,url_play_playlist_musique);
+       if (type.compare("music_album") == 0)  get_url(url_base,url_play_playlist_musique);
        if (type.compare("directory_album") == 0) 
           {
             get_url(url_base,url);

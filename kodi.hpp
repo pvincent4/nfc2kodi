@@ -4,6 +4,7 @@ static std::string lastfm_key;
 static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
 static std::string url_base = "http://osmc.local/jsonrpc";
 static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
+static std::string post_url = "}";
 using json = nlohmann::json;
 struct MemoryStruct {
   char *memory;
@@ -116,7 +117,7 @@ static void get_url(std::string url, std::string params)
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, params.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-    headers = curl_slist_append(headers, "Expect:");
+    //headers = curl_slist_append(headers, "Expect:");
     headers = curl_slist_append(headers, "Content-Type: application/json");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     /* if need to be redirected*/ 
@@ -134,12 +135,14 @@ static void get_url(std::string url, std::string params)
   }
 }
 
-std::string object2playlist(std::string type, std::string value, int limit)
+std::string object2playlist(std::string type, std::string value, int limit, int albumid_o)
 {
     // Get Songslists based on artisrid, albumid or artist
 	    //printf("object2playlist1\n");
 	    if (type.compare("artist")==0) value = "\""+value+"\"";
-	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" } }, \"id\": \"libSongs\"}";
+	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"id\": \"libSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" }";
+		if (type.compare("artist")==0) url_bis = url_bis + ", \"sort\":{\"order\":\"descending\",\"method\":\"playcount\"}";
+		url_bis = url_bis + " }" + post_url;
 		  //printf("object2playlist2\n");
 	    get_url(url_base,url_bis);
 	    //printf("object2playlist3\n");
@@ -158,14 +161,19 @@ std::string object2playlist(std::string type, std::string value, int limit)
           for (int i = 0; i < nb_songs; ++i)
           {
             int songid = j["result"]["songs"][i]["songid"].get<int>();
+            int albumid = j["result"]["songs"][i]["albumid"].get<int>();
             //Add songs to playlist
-            url_bis = pre_url + "\"method\": \"Playlist.Add\", \"params\": { \"playlistid\": 0,\"item\": { \"songid\": "+std::to_string(songid)+" } }}";
-            get_url(url_base,url_bis);
+            if (albumid_o != albumid) 
+            	{
+            		url_bis = pre_url + "\"method\": \"Playlist.Add\", \"params\": { \"playlistid\": 0,\"item\": { \"songid\": "+std::to_string(songid)+" } }}";
+            		get_url(url_base,url_bis);
+            	}
           }
 
           return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
-        else	return "";
+        else	
+        	return "";
 }
 
 static void similarartist2playlist(std::string name, int nb_artists, int nb_songs)
