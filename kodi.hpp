@@ -1,7 +1,7 @@
 //Variables globales 
 static std::string buffer;
 static std::string lastfm_key;
-static char *db_path = "kodinfc.sqlite";
+static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
 static std::string url_base = "http://osmc.local/jsonrpc";
 static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
 using json = nlohmann::json;
@@ -140,7 +140,7 @@ std::string object2playlist(std::string type, std::string value, int limit)
 	    //printf("object2playlist1\n");
 	    if (type.compare("artist")==0) value = "\""+value+"\"";
 	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" } }, \"id\": \"libSongs\"}";
-		//printf("object2playlist2\n");
+		  //printf("object2playlist2\n");
 	    get_url(url_base,url_bis);
 	    //printf("object2playlist3\n");
 	    //https://github.com/nlohmann/json#stl-like-access
@@ -176,9 +176,9 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
     get_url(url_lastfm, json_lastfm);
     sleep(2);
     try{
-    auto j1 = json::parse(buffer.c_str());
-    //std::cout << j1.dump(4) << std::endl;
-    //std::cout << j1;
+        auto j1 = json::parse(buffer.c_str());
+        //std::cout << j1.dump(4) << std::endl;
+        //std::cout << j1;
 
       //Parsing artists
         int nb_artists1 = j1["similarartists"]["artist"].size();
@@ -186,14 +186,13 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
         {
           printf("\ni : %s\n", std::to_string(i).c_str());          
           auto artist_name = j1["similarartists"]["artist"][i]["name"].get<std::string>();
-          object2playlist("artist", artist_name, 5);
+          object2playlist("artist", artist_name, nb_songs);
         }
-        throw std::string("Exception");
     }
-	catch(std::string const& e) //On rattrape les strings lancés
-	{
-         std::cout << "Exception raised: " << e<< '\n';
-   //if the previous code had some sort of error that was associated
-   //with (datatype)
-   }
+	   catch (json::exception& e)
+     {
+         // output exception information
+         std::cout << "message: " << e.what() << '\n'
+                   << "exception id: " << e.id << std::endl;
+     }
 }

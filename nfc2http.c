@@ -72,6 +72,14 @@ int
 main(int argc, const char *argv[])
 {
 
+  //Logs handling
+    using namespace std;
+    freopen( "output.txt", "w", stdout );
+    freopen( "error.txt", "w", stderr );
+
+    cout << "Output message" << endl;
+    cerr << "Error message" << endl;
+
   //Var declaration
     //Player 0 : Audio | Player 1 : Vidéo
     std::string tab[5] = {"","","","",""};
@@ -114,7 +122,7 @@ main(int argc, const char *argv[])
   		sqlite3_stmt* statement = NULL;
 
       // open connection to a DB
-      if (SQLITE_OK != (ret = sqlite3_open("/home/osmc/0-nfc2http/kodinfc.sqlite", &db)))
+      if (SQLITE_OK != (ret = sqlite3_open(db_path, &db)))
       {
           printf("Failed to open conn: %d\n", ret);
           return(1);
@@ -230,10 +238,10 @@ main(int argc, const char *argv[])
                   if (type.compare("musique_artist") == 0)  
                   {
                       //Add artist songs 
-                         std::string artist_name = object2playlist("artistid", value, 10);
+                         std::string artist_name = object2playlist("artistid", value, 45);
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, 3, 3);
+                          similarartist2playlist(artist_name, 3, 5);
                     }
                 if ((option_random.compare("TRUE") == 0) || (stats > 5)) 
                    {
@@ -287,6 +295,7 @@ main(int argc, const char *argv[])
           {
             //Add new stat entry        
                 stats = stats+1;
+                if (stats > 100) stats = 100;
                 std::string s = SSTR(stats);
                 std::string sql2 = "UPDATE tags set stats = "+s+" WHERE id ='"+id+"';";
                 sql1 = sql2.c_str();
