@@ -90,6 +90,7 @@ main(int argc, const char *argv[])
     std::string url_bis;
     int stats; //Type of object readed
     lastfm_key = readconfig("lastfm_key",db_path);
+    nb_whish_songs = std::stoi(readconfig("nb_whish_songs",db_path));
 
     std::string url2 = "\"method\":\"Player.Open\",\"params\":{\"item\":";
     std::string url2_2 = "\"method\":\"playlist.add\",\"params\":{\"playlistid\":1,\"item\":";
@@ -226,22 +227,24 @@ main(int argc, const char *argv[])
                   if (type.compare("music_album") == 0) 
                   {
                       //Add album songs 
-                         std::string artist_name = object2playlist("albumid", value, 30, 0);
+                         std::string artist_name = object2playlist("albumid", value, nb_whish_songs/5, 0, "");
 
                       //Add other artist songs 
-                         object2playlist("artist", artist_name, 15, (int)value);
+                         object2playlist("artist", artist_name, nb_whish_songs/10, (int)value , "playcount");
+                         object2playlist("artist", artist_name, nb_whish_songs/15, (int)value , "random");
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, 3, 5);
+                          similarartist2playlist(artist_name, nb_whish_songs/15, nb_whish_songs/12);
                   }
                   if (type.compare("music_artist") == 0)  
                   {
                       //Add artist songs 
-                         std::string artist_name = object2playlist("artistid", value, 45, 0);
+                        std::string artist_name = object2playlist("artistid", value, nb_whish_songs/5, 0, "playcount");
+                        object2playlist("artistid", value, nb_whish_songs/10, 0, "random");
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, 3, 5);
-                    }
+                          similarartist2playlist(artist_name, nb_whish_songs/15, nb_whish_songs/12);
+                  }
                 if ((option_random.compare("TRUE") == 0) || (stats > 20)) 
                    {
                     url = url + url3;
@@ -264,7 +267,6 @@ main(int argc, const char *argv[])
 	//Performing request and Double Request
      	//sleep(1);
 
-     	
 
        if (type.compare("youtube_playlist") == 0)  get_url(url_base,url_play_playlist);
        if (type.compare("podcast") == 0)  get_url(url_base,url_play_playlist);

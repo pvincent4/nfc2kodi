@@ -1,6 +1,7 @@
 //Variables globales 
 static std::string buffer;
 static std::string lastfm_key;
+static int nb_whish_songs;
 static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
 static std::string url_base = "http://osmc.local/jsonrpc";
 static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
@@ -135,18 +136,21 @@ static void get_url(std::string url, std::string params)
   }
 }
 
-std::string object2playlist(std::string type, std::string value, int limit, int albumid_o)
+std::string object2playlist(std::string type, std::string value, int limit, int albumid_exclude, std::string sort)
 {
     // Get Songslists based on artisrid, albumid or artist
 	    //printf("object2playlist1\n");
 	    if (type.compare("artist")==0) value = "\""+value+"\"";
 	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"id\": \"libSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" }";
-		//Sort by polpularity if artist initial entry and none album
-		if (type.compare("artistid")==0) 
-			url_bis = url_bis + ", \"sort\":{\"order\":\"descending\",\"method\":\"playcount\"}";
-		else
-			url_bis = url_bis + ", \"sort\":{\"order\":\"ascending\",\"method\":\"random\"}";
-		url_bis = url_bis + " }" + post_url;
+		
+    //Sorting options
+      if (sort.compare("playcount")==0) 
+  			url_bis = url_bis + ", \"sort\":{\"order\":\"descending\",\"method\":\""+sort+"\"}" ;
+      else if (sort.compare("")!=0)
+        url_bis = url_bis + ", \"sort\":{\"order\":\"ascending\",\"method\":\""+sort+"\"}" ;
+
+      url_bis = url_bis + "}" + post_url;
+
 		  //printf("object2playlist2\n");
 	    get_url(url_base,url_bis);
 	    //printf("object2playlist3\n");
@@ -155,19 +159,19 @@ std::string object2playlist(std::string type, std::string value, int limit, int 
 	    //printf("object2playlist4\n");
 
       //Parsing songs
-        int nb_songs = j["result"]["songs"].size();
+        int nb_s = j["result"]["songs"].size();
 	    //printf("object2playlist5\n");
 
-        printf("\nSng nb : %s\n", std::to_string(nb_songs).c_str());
+        printf("\nSng nb : %s\n", std::to_string(nb_s).c_str());
         
-        if (nb_songs > 0)
+        if (nb_s > 0)
         {
-          for (int i = 0; i < nb_songs; ++i)
+          for (int i = 0; i < nb_s; ++i)
           {
             int songid = j["result"]["songs"][i]["songid"].get<int>();
             int albumid = j["result"]["songs"][i]["albumid"].get<int>();
             //Add songs to playlist
-            if (albumid_o != albumid) 
+            if (albumid_exclude != albumid) 
             	{
             		url_bis = pre_url + "\"method\": \"Playlist.Add\", \"params\": { \"playlistid\": 0,\"item\": { \"songid\": "+std::to_string(songid)+" } }}";
             		get_url(url_base,url_bis);
@@ -198,7 +202,8 @@ static void similarartist2playlist(std::string name, int nb_artists, int nb_song
         {
           printf("\ni : %s\n", std::to_string(i).c_str());          
           auto artist_name = j1["similarartists"]["artist"][i]["name"].get<std::string>();
-          object2playlist("artist", artist_name, nb_songs,0);
+          object2playlist("artist", artist_name, nb_songs/2,0,"playcount");
+          object2playlist("artist", artist_name, nb_songs/2,0,"random");
         }
     }
 	   catch (json::exception& e)
