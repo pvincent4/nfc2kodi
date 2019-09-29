@@ -136,22 +136,21 @@ static void get_url(std::string url, std::string params)
   }
 }
 
-std::string object2playlist(std::string type, std::string value, int limit, int albumid_exclude, std::string sort)
+std::array<std::string, 2> object2playlist(std::string type, std::string value, int limit, int albumid_exclude, std::string sort)
 {
     // Get Songslists based on artisrid, albumid or artist
 	    //printf("object2playlist1\n");
-	    if (type.compare("artist")==0) value = "\""+value+"\"";
-	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"id\": \"libSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"duration\", \"album\", \"track\" ],\"filter\": { \""+type+"\": "+value+" }";
+	    if ((type.compare("artist")==0)||(type.compare("genre")==0)) value = "\""+value+"\"";
+	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"id\": \"libSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"album\", \"track\", \"genre\", \"genreid\", \"mood\"],\"filter\": { \""+type+"\": "+value+" }";
 		
     //Sorting options
       if (sort.compare("playcount")==0) 
   			url_bis = url_bis + ", \"sort\":{\"order\":\"descending\",\"method\":\""+sort+"\"}" ;
       else if (sort.compare("")!=0)
         url_bis = url_bis + ", \"sort\":{\"order\":\"ascending\",\"method\":\""+sort+"\"}" ;
+      	url_bis = url_bis + "}" + post_url;
 
-      url_bis = url_bis + "}" + post_url;
-
-		  //printf("object2playlist2\n");
+		//printf("object2playlist2\n");
 	    get_url(url_base,url_bis);
 	    //printf("object2playlist3\n");
 	    //https://github.com/nlohmann/json#stl-like-access
@@ -177,11 +176,13 @@ std::string object2playlist(std::string type, std::string value, int limit, int 
             		get_url(url_base,url_bis);
             	}
           }
-
-          return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
+          //genre
+          std::array<std::string, 2> a = { (j["result"]["songs"][0]["artist"][0].get<std::string>()), (j["result"]["songs"][0]["genre"][0].get<std::string>()) };
+          return a;
+          //return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
         else	
-        	return "";
+        	return std::array<std::string, 2> {{"",""}};
 }
 
 static void similarartist2playlist(std::string name, int nb_artists, int nb_songs)

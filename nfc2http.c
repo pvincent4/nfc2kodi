@@ -2,6 +2,7 @@
 #include <string>
 #include <regex.h>
 #include <cstring>
+#include <array>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -94,8 +95,8 @@ main(int argc, const char *argv[])
 
     std::string url2 = "\"method\":\"Player.Open\",\"params\":{\"item\":";
     std::string url2_2 = "\"method\":\"playlist.add\",\"params\":{\"playlistid\":1,\"item\":";
-    std::string url3 = ",\"options\":{\"shuffled\":true}";
-    std::string url3_2 = ",\"options\":{\"shuffled\":false}";
+    std::string url3 = ",\"options\":{\"shuffled\":true}}";
+    std::string url3_2 = ",\"options\":{\"shuffled\":false}}";
     std::string url4 = ",\"options\":{\"repeat\":\"all\"}";
     
     std::string playlist_clear_video = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":1}}";
@@ -227,11 +228,15 @@ main(int argc, const char *argv[])
                   if (type.compare("music_album") == 0) 
                   {
                       //Add album songs 
-                         std::string artist_name = object2playlist("albumid", value, nb_whish_songs/5, 0, "");
+                        std::array<std::string, 2> a = object2playlist("albumid", value, nb_whish_songs/5, 0, "");
+						std::string artist_name = a[0];
+						std::string genre_name = a[1];
 
                       //Add other artist songs 
                          object2playlist("artist", artist_name, nb_whish_songs/10, (int)value , "playcount");
                          object2playlist("artist", artist_name, nb_whish_songs/15, (int)value , "random");
+                      //Add other genre songs 
+                         object2playlist("genre", genre_name, nb_whish_songs/15, (int)value , "random");
 
                       //Add similar artists songs
                           similarartist2playlist(artist_name, nb_whish_songs/15, nb_whish_songs/12);
@@ -239,8 +244,13 @@ main(int argc, const char *argv[])
                   if (type.compare("music_artist") == 0)  
                   {
                       //Add artist songs 
-                        std::string artist_name = object2playlist("artistid", value, nb_whish_songs/5, 0, "playcount");
+                        std::array<std::string, 2> a1 = object2playlist("artistid", value, nb_whish_songs/5, 0, "playcount");
+						std::string artist_name = a1[0];
+						std::string genre_name = a1[1];
                         object2playlist("artistid", value, nb_whish_songs/10, 0, "random");
+
+                      //Add other genre songs 
+                         object2playlist("genre", genre_name, nb_whish_songs/15, (int)value , "random");
 
                       //Add similar artists songs
                           similarartist2playlist(artist_name, nb_whish_songs/15, nb_whish_songs/12);
