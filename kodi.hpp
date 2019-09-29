@@ -139,7 +139,11 @@ static void get_url(std::string url, std::string params)
 
 std::array<std::string, 2> object2playlist(std::string type, std::string value, int limit, int albumid_exclude, std::string sort)
 {
-     int nb_s = 0;
+    //Var init 
+      int nb_s = 0;
+      std::string artist_name = "";
+      std::string genre_name = "";
+    
     // Get Songslists based on artisrid, albumid or artist
 	    //printf("object2playlist1\n");
 	    if ((type.compare("artist")==0)||(type.compare("genre")==0)) value = "\""+value+"\"";
@@ -165,13 +169,7 @@ std::array<std::string, 2> object2playlist(std::string type, std::string value, 
 	    //printf("object2playlist5\n");
 
         printf("\nSng nb : %s\n", std::to_string(nb_s).c_str());
-      }
-      catch (json::exception& e)
-       {
-           // output exception information
-           std::cout << "message: " << e.what() << '\n'
-                     << "exception id: " << e.id << std::endl;
-       }
+      
         if (nb_s > 0)
         {
           for (int i = 0; i < nb_s; ++i)
@@ -186,16 +184,23 @@ std::array<std::string, 2> object2playlist(std::string type, std::string value, 
             	}
           }
           //genre
-          std::string artist_name = "";
-          std::string genre_name = "";
           if (j["result"]["songs"][0]["artist"][0]!=NULL) artist_name = j["result"]["songs"][0]["artist"][0].get<std::string>();
           if (j["result"]["songs"][0]["genre"][0]!=NULL) genre_name = j["result"]["songs"][0]["genre"][0].get<std::string>();
-          std::array<std::string, 2> a = { artist_name, genre_name };
-          return a;
           //return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
-        else	
-        	return std::array<std::string, 2> {{"",""}};
+
+      } 
+      
+      catch (json::exception& e)
+      {
+           // output exception information
+           std::cout << "message: " << e.what() << '\n'
+                     << "exception id: " << e.id << std::endl;
+      }
+      
+      std::array<std::string, 2> a = { artist_name, genre_name };
+      return a;
+
 }
 
 static void similarartist2playlist(std::string name, int nb_artists, int nb_songs)
