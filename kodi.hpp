@@ -2,7 +2,8 @@
 static std::string buffer;
 static std::string lastfm_key;
 static int nb_whish_songs;
-static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
+//static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
+static char *db_path = "kodinfc.sqlite";
 static std::string url_base = "http://osmc.local/jsonrpc";
 static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
 static std::string post_url = "}";
@@ -132,7 +133,7 @@ static void get_url(std::string url, std::string params)
     }
 
     curl_easy_cleanup(curl);
-    //printf("\nPage data:\n%s\n", buffer.c_str());
+    printf("\nPage data:\n%s\n", buffer.c_str());
   }
 }
 
@@ -141,7 +142,7 @@ std::array<std::string, 2> object2playlist(std::string type, std::string value, 
     // Get Songslists based on artisrid, albumid or artist
 	    //printf("object2playlist1\n");
 	    if ((type.compare("artist")==0)||(type.compare("genre")==0)) value = "\""+value+"\"";
-	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"id\": \"libSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"album\", \"track\", \"genre\", \"genreid\", \"mood\"],\"filter\": { \""+type+"\": "+value+" }";
+	    auto url_bis = pre_url + "\"method\": \"AudioLibrary.GetSongs\", \"id\": \"libSongs\", \"params\": { \"limits\": {\"start\":0, \"end\":"+std::to_string(limit)+"},\"properties\": [ \"albumid\",\"artist\", \"album\", \"track\", \"genre\"],\"filter\": { \""+type+"\": "+value+" }";
 		
     //Sorting options
       if (sort.compare("playcount")==0) 
@@ -177,7 +178,11 @@ std::array<std::string, 2> object2playlist(std::string type, std::string value, 
             	}
           }
           //genre
-          std::array<std::string, 2> a = { (j["result"]["songs"][0]["artist"][0].get<std::string>()), (j["result"]["songs"][0]["genre"][0].get<std::string>()) };
+          std::string artist_name = "";
+          std::string genre_name = "";
+          if (j["result"]["songs"][0]["artist"][0]!=NULL) artist_name = j["result"]["songs"][0]["artist"][0].get<std::string>();
+          if (j["result"]["songs"][0]["genre"][0]!=NULL) genre_name = j["result"]["songs"][0]["genre"][0].get<std::string>();
+          std::array<std::string, 2> a = { artist_name, genre_name };
           return a;
           //return (j["result"]["songs"][0]["artist"][0].get<std::string>()); 
         }
