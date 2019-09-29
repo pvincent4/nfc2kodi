@@ -139,6 +139,7 @@ static void get_url(std::string url, std::string params)
 
 std::array<std::string, 2> object2playlist(std::string type, std::string value, int limit, int albumid_exclude, std::string sort)
 {
+     int nb_s = 0;
     // Get Songslists based on artisrid, albumid or artist
 	    //printf("object2playlist1\n");
 	    if ((type.compare("artist")==0)||(type.compare("genre")==0)) value = "\""+value+"\"";
@@ -151,7 +152,8 @@ std::array<std::string, 2> object2playlist(std::string type, std::string value, 
         url_bis = url_bis + ", \"sort\":{\"order\":\"ascending\",\"method\":\""+sort+"\"}" ;
       	url_bis = url_bis + "}" + post_url;
 
-		//printf("object2playlist2\n");
+		  try {
+      //printf("object2playlist2\n");
 	    get_url(url_base,url_bis);
 	    //printf("object2playlist3\n");
 	    //https://github.com/nlohmann/json#stl-like-access
@@ -159,11 +161,17 @@ std::array<std::string, 2> object2playlist(std::string type, std::string value, 
 	    //printf("object2playlist4\n");
 
       //Parsing songs
-        int nb_s = j["result"]["songs"].size();
+        nb_s = j["result"]["songs"].size();
 	    //printf("object2playlist5\n");
 
         printf("\nSng nb : %s\n", std::to_string(nb_s).c_str());
-        
+      }
+      catch (json::exception& e)
+       {
+           // output exception information
+           std::cout << "message: " << e.what() << '\n'
+                     << "exception id: " << e.id << std::endl;
+       }
         if (nb_s > 0)
         {
           for (int i = 0; i < nb_s; ++i)
