@@ -74,12 +74,12 @@ main(int argc, const char *argv[])
 {
 
   //Logs handling
-    using namespace std;
-    freopen( "output.txt", "w", stdout );
-    freopen( "error.txt", "w", stderr );
+    //using namespace std;
+    //freopen( "output.txt", "w", stdout );
+    //freopen( "error.txt", "w", stderr );
 
-    cout << "Output message" << endl;
-    cerr << "Error message" << endl;
+    //cout << "Output message" << endl;
+    //cerr << "Error message" << endl;
 
   //Var declaration
     //Player 0 : Audio | Player 1 : Vidéo
@@ -91,7 +91,7 @@ main(int argc, const char *argv[])
     std::string url_bis;
     int stats; //Type of object readed
     lastfm_key = readconfig("lastfm_key",db_path);
-    nb_whish_songs = std::stoi(readconfig("nb_whish_songs",db_path));
+    nb_whish_songs = 60; //std::stoi(readconfig("nb_whish_songs",db_path));
 
     std::string url2 = "\"method\":\"Player.Open\",\"params\":{\"item\":";
     std::string url2_2 = "\"method\":\"playlist.add\",\"params\":{\"playlistid\":1,\"item\":";
