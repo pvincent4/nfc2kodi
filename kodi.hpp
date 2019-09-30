@@ -2,8 +2,8 @@
 static std::string buffer;
 static std::string lastfm_key;
 static int nb_whish_songs;
-//static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
-static char *db_path = "kodinfc.sqlite";
+static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
+//static char *db_path = "kodinfc.sqlite";
 static std::string url_base = "http://osmc.local/jsonrpc";
 static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
 static std::string post_url = "}";

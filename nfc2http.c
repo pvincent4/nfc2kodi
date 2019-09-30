@@ -229,12 +229,13 @@ main(int argc, const char *argv[])
                   {
                       //Add album songs 
                         std::array<std::string, 2> a = object2playlist("albumid", value, nb_whish_songs/5, 0, "");
-						std::string artist_name = a[0];
-						std::string genre_name = a[1];
+            						std::string artist_name = a[0];
+            						std::string genre_name = a[1];
 
                       //Add other artist songs 
                          object2playlist("artist", artist_name, nb_whish_songs/10, (int)value , "playcount");
                          object2playlist("artist", artist_name, nb_whish_songs/15, (int)value , "random");
+                      
                       //Add other genre songs 
                          object2playlist("genre", genre_name, nb_whish_songs/15, (int)value , "random");
 
@@ -245,8 +246,8 @@ main(int argc, const char *argv[])
                   {
                       //Add artist songs 
                         std::array<std::string, 2> a1 = object2playlist("artistid", value, nb_whish_songs/5, 0, "playcount");
-						std::string artist_name = a1[0];
-						std::string genre_name = a1[1];
+            						std::string artist_name = a1[0];
+            						std::string genre_name = a1[1];
                         object2playlist("artistid", value, nb_whish_songs/10, 0, "random");
 
                       //Add other genre songs 
