@@ -4,9 +4,32 @@ static std::string lastfm_key;
 static int nb_whish_songs;
 //static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
 static char *db_path = "kodinfc.sqlite";
+
 static std::string url_base = "http://osmc.local/jsonrpc";
 static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
 static std::string post_url = "}";
+static std::string url2 = "\"method\":\"Player.Open\",\"params\":{\"item\":";
+static std::string url2_2 = "\"method\":\"playlist.add\",\"params\":{\"playlistid\":1,\"item\":";
+static std::string url3 = ",\"options\":{\"shuffled\":true}}";
+static std::string url3_2 = ",\"options\":{\"shuffled\":false}}";
+static std::string url4 = ",\"options\":{\"repeat\":\"all\"}";
+
+static std::string playlist_clear_video = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":1}}";
+static std::string playlist_clear_musique = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":0}}";
+static std::string set_volume_max = pre_url + "\"method\":\"Application.SetVolume\",\"params\":{\"volume\":90}}"; 
+
+static std::string url_stop0 = pre_url + "\"method\":\"Player.Stop\",\"params\":{\"playerid\":\"0\"}}";
+static std::string url_stop1 = pre_url + "\"method\":\"Player.Stop\",\"params\":{\"playerid\":\"1\"}}";
+static std::string url_next0 = pre_url + "\"method\":\"Player.GoTo\",\"params\":{\"playerid\":\"0\",\"to\":\"next\"}" + post_url;
+static std::string url_next1 = pre_url + "\"method\":\"Player.GoTo\",\"params\":{\"playerid\":\"1\",\"to\":\"next\"}" + post_url;
+static std::string url_visualisation = pre_url + "\"method\":\"GUI.ActivateWindow\",\"params\":{\"window\":\"visualisation\"}" + post_url;
+static std::string url_play_playlist = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":1}}}";
+static std::string url_play_playlist_musique = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":0}}}";
+static std::string url_setshuffle = pre_url + "\"method\":\"Player.SetShuffle\",\"params\":{\"shuffle\":\"true\"}}";
+
+static std::string url = pre_url + url2 + "{\"file\":\"/home/osmc/.kodi/userdata/playlists/music/songs.xsp\"}" + post_url;
+
+
 using json = nlohmann::json;
 struct MemoryStruct {
   char *memory;
