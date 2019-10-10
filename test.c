@@ -42,6 +42,18 @@ std::string convert_hex(const uint8_t *pbtData, const size_t szBytes)
     return ss.str();
 }
 
+
+static int callback(void *data, int argc, char **argv, char **azColName){
+   int i;
+   fprintf(stderr, "%s: ", (const char*)data);
+   for(i=0; i<argc; i++){
+      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+   }
+   printf("\n");
+   return 0;
+}
+
+
 // MAIN PROGRAM
 int
 main(int argc, const char *argv[])
@@ -53,40 +65,26 @@ main(int argc, const char *argv[])
 
     //Player 0 : Audio | Player 1 : Vidéo
     std::string tab[5] = {"","","","",""};
-    std::string id; //NFC id
+    std::string id="test"; //NFC id
     std::string type; //Type of object readed
     std::string option_random; 
     std::string option_new; 
     std::string url_bis;
-    int stats; //Type of object readed
+    int stats; 
+    int last_date; 
+    time_t now = time(0);
+
+    //Config vars > to move to config db
     lastfm_key = readconfig("lastfm_key",db_path);
-    nb_whish_songs = std::stoi(readconfig("nb_whish_songs",db_path));    
+    nb_whish_songs = 60; //std::stoi(readconfig("nb_whish_songs",db_path));
 
-    std::string url2 = "\"method\":\"Player.Open\",\"params\":{\"item\":";
-    std::string url2_2 = "\"method\":\"playlist.add\",\"params\":{\"playlistid\":1,\"item\":";
-    std::string url3 = ",\"options\":{\"shuffled\":true}";
-    std::string url3_2 = ",\"options\":{\"shuffled\":false}";
-    std::string url4 = ",\"options\":{\"repeat\":\"all\"}";
-    std::string post_url = "}}";
-    
-    std::string playlist_clear_video = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":1}}";
-    std::string playlist_clear_musique = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":0}}";
-    std::string url_stop0 = pre_url + "\"method\":\"Player.Stop\",\"params\":{\"playerid\":\"0\"}}";
-    std::string url_stop1 = pre_url + "\"method\":\"Player.Stop\",\"params\":{\"playerid\":\"1\"}}";
-    std::string url_next0 = pre_url + "\"method\":\"Player.GoTo\",\"params\":{\"playerid\":\"0\",\"to\":\"next\"}" + post_url;
-    std::string url_next1 = pre_url + "\"method\":\"Player.GoTo\",\"params\":{\"playerid\":\"1\",\"to\":\"next\"}" + post_url;
-    std::string url_visualisation = pre_url + "\"method\":\"GUI.ActivateWindow\",\"params\":{\"window\":\"visualisation\"}" + post_url;
-    std::string url_play_playlist = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":1}}}";
-    std::string url_play_playlist_musique = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":0}}}";
-    std::string url_setshuffle = pre_url + "\"method\":\"Player.SetShuffle\",\"params\":{\"shuffle\":\"true\"}}";
-
-    std::string url = pre_url + url2 + "{\"file\":\"/home/osmc/.kodi/userdata/playlists/music/songs.xsp\"}" + post_url;
 
 	//Initialisation DB
   		sqlite3 *db;
   		int ret = 0;
-  		char *zErrMsg = 0;
+      char *zErrMsg = 0;
       const char *sql;
+      const char *sql1;      
       const char* data = "Callback function called";
   		 	
   		sqlite3_stmt* statement = NULL;
@@ -104,12 +102,12 @@ main(int argc, const char *argv[])
 
 
   //Main Loop
-          id = "";
-      		std::string sql1 = "SELECT * from tags WHERE id ='test';";
-    			sql = sql1.c_str();
+          id = "test";
+      		std::string sql0 = "SELECT * from tags WHERE id ='"+id+"';";
+    			sql = sql0.c_str();
 
           //Check database for id
-    			if(sqlite3_prepare_v2(db, sql, -1, &statement, 0) == SQLITE_OK)
+          if(sqlite3_prepare_v2(db, sql, -1, &statement, 0) == SQLITE_OK)
     			{
     				int cols = sqlite3_column_count(statement);
     				int result = 0;
@@ -129,12 +127,19 @@ main(int argc, const char *argv[])
                   char *new0 = (char*)sqlite3_column_text(statement, 4); if(new0) option_new = new0;
                   char *value = (char*)sqlite3_column_text(statement, 2);
                   int stats0 = sqlite3_column_int(statement, 5);  if(stats0) stats = stats0; else stats = 0;
-                  
+                  int last_date0 = sqlite3_column_int(statement, 6);  if(last_date0) last_date = last_date0; else last_date = 0;
+                  int pond = ((now - last_date)/3600/24); // days since last played
+                  printf("now : %i\n", now);
+                  printf("last_date : %i\n", last_date);
+                  printf("pond : %i\n", pond);
+
                   //Clean and stop
                   //get_url(url_base,url_stop0);
                   //get_url(url_base,url_stop1);
-                  get_url(url_base,playlist_clear_video);
-                  get_url(url_base,playlist_clear_musique);
+                  //get_url(url_base,playlist_clear_video);
+                  //get_url(url_base,playlist_clear_musique);
+                  get_url(url_base,set_volume_max);
+
 
                   if (type.compare("directory_album") == 0)  url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/music/"+value+"\"}";
                   if (type.compare("video") == 0) url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/video/"+value+"\"}" + url3;
@@ -149,32 +154,34 @@ main(int argc, const char *argv[])
                   if (type.compare("music_album") == 0) 
                   {
                       //Add album songs 
-                        std::array<std::string, 2> a = object2playlist("albumid", value, nb_whish_songs/5, 0, "");
+                        //Nb of songs = a*pond+b (with pond = delay in days of last playing)
+                        std::array<std::string, 2> a = object2playlist("albumid", value, (int)1.22*pond+2.8 , 0, ""); //10>15 / 0>5
                         std::string artist_name = a[0];
                         std::string genre_name = a[1];
 
                       //Add other artist songs 
-                         object2playlist("artist", artist_name, nb_whish_songs/10, atoi(value) , "playcount");
-                         object2playlist("artist", artist_name, nb_whish_songs/15, atoi(value) , "random");
+                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8 , "playcount"); //10>5 / 0>8
+                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8 , "random"); //10>5 / 0>8
+                      
                       //Add other genre songs 
-                         object2playlist("genre", genre_name, nb_whish_songs/15, atoi(value) , "random");
+                         object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value , "random"); //10>3 / 0>10
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, nb_whish_songs/15, nb_whish_songs/12);
+                          similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3);//10>1 / 0>6
                   }
                   if (type.compare("music_artist") == 0)  
                   {
                       //Add artist songs 
-                        std::array<std::string, 2> a1 = object2playlist("artistid", value, nb_whish_songs/5, 0, "playcount");
-            std::string artist_name = a1[0];
-            std::string genre_name = a1[1];
-                        object2playlist("artistid", value, nb_whish_songs/10, 0, "random");
+                        std::array<std::string, 2> a1 = object2playlist("artistid", value, (int)0.2*pond+6, 0, "playcount"); //10>8 / 0>6
+                        std::string artist_name = a1[0];
+                        std::string genre_name = a1[1];
+                        object2playlist("artistid", value, (int)-0.2*pond+8, 0, "random"); //10>6 / 0>8
 
                       //Add other genre songs 
-                         object2playlist("genre", genre_name, nb_whish_songs/15, atoi(value) , "random");
+                         object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value , "random"); //10>3 / 0>10
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, nb_whish_songs/15, nb_whish_songs/12);
+                          similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3);//10>1 / 0>6
                   }
                 if ((option_random.compare("TRUE") == 0) || (stats > 20)) 
                    {
@@ -198,7 +205,7 @@ main(int argc, const char *argv[])
   //Performing request and Double Request
       //sleep(1);
 
-
+      /*
        if (type.compare("youtube_playlist") == 0)  get_url(url_base,url_play_playlist);
        if (type.compare("podcast") == 0)  get_url(url_base,url_play_playlist);
        if (type.compare("music_artist") == 0)  get_url(url_base,url_play_playlist_musique);
@@ -213,14 +220,27 @@ main(int argc, const char *argv[])
           get_url(url_base,url);
           get_url(url_base,url_visualisation);
         }
+      */
 
+      //Date update
+        // convert now to string form
+        //char* dt = ctime(&now);
+        std::string dt = std::to_string(now);
+        std::string sql2 = "UPDATE tags set last_date = "+dt+" WHERE id ='"+id+"';";
 
+        sql1 = sql2.c_str();
+        printf("%s\n", sql1);        
+        // Execute SQL statement
+        ret = sqlite3_exec(db, sql1, callback, (void*)data, &zErrMsg);
+        if( ret != SQLITE_OK ){
+          fprintf(stderr, "SQL error: %s\n", zErrMsg);
+          //sqlite3_free(zErrMsg);
+        }
 
   //CLOSING
- 	sqlite3_close(db);
-	
-	exit(EXIT_SUCCESS);
+   	sqlite3_close(db);
+  	exit(EXIT_SUCCESS);
 
-  return 0;
+    return 0;
 
 }

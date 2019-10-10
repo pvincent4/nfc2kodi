@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <stdio.h>
+#include <time.h>
 #include <nfc/nfc.h>
 #include <unistd.h>
 #include <curl/curl.h>
@@ -90,8 +91,8 @@ main(int argc, const char *argv[])
     std::string option_new; 
     std::string url_bis;
     int stats; 
-    int last_date; 
-    time_t now = time(0);
+	int last_date; 
+	time_t now = time(0);
 
     //Config vars > to move to config db
     lastfm_key = readconfig("lastfm_key",db_path);
@@ -194,7 +195,7 @@ main(int argc, const char *argv[])
                   char *value = (char*)sqlite3_column_text(statement, 2);
                   int stats0 = sqlite3_column_int(statement, 5);  if(stats0) stats = stats0; else stats = 0;
                   int last_date0 = sqlite3_column_int(statement, 6);  if(last_date0) last_date = last_date0; else last_date = 0;
-                  int pond = ((now - last_date)/3600/24)+1; // days since last played
+                  int pond = ((now - last_date)/3600/24); // days since last played
                   printf("%i\n", pond);
 
                   //INTRO : clean and stop
@@ -218,35 +219,35 @@ main(int argc, const char *argv[])
                   {
                       //Add album songs 
                         //Nb of songs = a*pond+b (with pond = delay in days of last playing)
-                        std::array<std::string, 2> a = object2playlist("albumid", value, (int)1.22*pond+2.8 , 0, ""); //15 songs with pond> 10
+                        std::array<std::string, 2> a = object2playlist("albumid", value, (int)1.22*pond+2.8 , 0, ""); //10>15 / 0>5
             						std::string artist_name = a[0];
             						std::string genre_name = a[1];
 
                       //Add other artist songs 
-                         object2playlist("artist", artist_name, 5, (int)value , "playcount"); //10 songs with pond> 10
-                         object2playlist("artist", artist_name, 5, (int)value , "random");
+                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8 , "playcount"); //10>5 / 0>8
+                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8 , "random"); //10>5 / 0>8
                       
                       //Add other genre songs 
-                         object2playlist("genre", genre_name, (int)-0.8*pond+10.7, (int)value , "random");
+                         object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value , "random"); //10>3 / 0>10
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3);
+                          similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3);//10>1 / 0>6
                   }
                   if (type.compare("music_artist") == 0)  
                   {
                       //Add artist songs 
-                        std::array<std::string, 2> a1 = object2playlist("artistid", value, nb_whish_songs/5, 0, "playcount");
+                        std::array<std::string, 2> a1 = object2playlist("artistid", value, (int)0.2*pond+6, 0, "playcount"); //10>8 / 0>6
             						std::string artist_name = a1[0];
             						std::string genre_name = a1[1];
-                        object2playlist("artistid", value, nb_whish_songs/10, 0, "random");
+                        object2playlist("artistid", value, (int)-0.2*pond+8, 0, "random"); //10>6 / 0>8
 
                       //Add other genre songs 
-                         object2playlist("genre", genre_name, nb_whish_songs/15, (int)value , "random");
+                         object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value , "random"); //10>3 / 0>10
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, nb_whish_songs/15, nb_whish_songs/12);
+                          similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3);//10>1 / 0>6
                   }
-                if ((option_random.compare("TRUE") == 0) || (stats > 20)) 
+                if ((option_random.compare("TRUE") == 0) || (pond < 2)) 
                    {
                     url = url + url3;
                     get_url(url_base,url_setshuffle);                    
@@ -297,7 +298,7 @@ main(int argc, const char *argv[])
           {
             //Add new stat entry        
                 stats = stats+1;
-                if (stats > 100) stats = 100;
+                if (stats > 1000) stats = 100;
                 std::string s = SSTR(stats);
                 std::string sql2 = "UPDATE tags set stats = "+s+" WHERE id ='"+id+"';";
                 sql1 = sql2.c_str();
@@ -310,12 +311,12 @@ main(int argc, const char *argv[])
                 }
           }
 
-
         //Date update
             // convert now to string form
             //char* dt = ctime(&now);
             std::string dt = std::to_string(now);
             std::string sql2 = "UPDATE tags set last_date = "+dt+" WHERE id ='"+id+"';";
+            printf("%s\n",dt.c_str());
             sql1 = sql2.c_str();
             // Execute SQL statement
             ret = sqlite3_exec(db, sql1, callback, (void*)data, &zErrMsg);
