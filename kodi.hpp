@@ -10,8 +10,8 @@ static std::string pre_url = "{\"jsonrpc\":\"2.0\",\"id\":\"1\",";
 static std::string post_url = "}";
 static std::string url2 = "\"method\":\"Player.Open\",\"params\":{\"item\":";
 static std::string url2_2 = "\"method\":\"playlist.add\",\"params\":{\"playlistid\":1,\"item\":";
-static std::string url3 = ",\"options\":{\"shuffled\":true}}";
-static std::string url3_2 = ",\"options\":{\"shuffled\":false}}";
+static std::string url3 = ",\"options\":{\"shuffled\":true}";
+static std::string url3_2 = ",\"options\":{\"shuffled\":false}";
 static std::string url4 = ",\"options\":{\"repeat\":\"all\"}";
 
 static std::string playlist_clear_video = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":1}}";

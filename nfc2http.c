@@ -205,16 +205,16 @@ main(int argc, const char *argv[])
                     get_url(url_base,playlist_clear_musique);
                     get_url(url_base,set_volume_max);
 
-                  if (type.compare("directory_album") == 0)  url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/music/"+value+"\"}";
-                  if (type.compare("video") == 0)	url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/video/"+value+"\"}" + url3;
-                  if ((type.compare("youtube_channel") == 0)&&(option_random.compare("TRUE") == 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fchannel_id%3D"+value+"%26order%3Dshuffle\"}";
-                  if ((type.compare("youtube_channel") == 0)&&(option_random.compare("TRUE") != 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fchannel_id%3D"+value+"%26order%3Ddefault\"}";
-                  if ((type.compare("youtube_playlist") == 0)&&(option_random.compare("TRUE") == 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fplaylist_id%3D"+value+"%26order%3Dshuffle\"}";
-                  if ((type.compare("youtube_playlist") == 0)&&(option_random.compare("TRUE") != 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fplaylist_id%3D"+value+"%26order%3Ddefault\"}";
+                  if (type.compare("directory_album") == 0)  url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/music/"+value+"\"}}";
+                  if (type.compare("video") == 0)	url = url2 + "{\"directory\":\"nfs://192.168.0.11/volume1/video/"+value+"\"}}" + url3;
+                  if ((type.compare("youtube_channel") == 0)&&(option_random.compare("TRUE") == 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fchannel_id%3D"+value+"%26order%3Dshuffle\"}}";
+                  if ((type.compare("youtube_channel") == 0)&&(option_random.compare("TRUE") != 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fchannel_id%3D"+value+"%26order%3Ddefault\"}}";
+                  if ((type.compare("youtube_playlist") == 0)&&(option_random.compare("TRUE") == 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fplaylist_id%3D"+value+"%26order%3Dshuffle\"}}";
+                  if ((type.compare("youtube_playlist") == 0)&&(option_random.compare("TRUE") != 0))  url = url2 + "{\"file\":\"plugin://plugin.video.youtube/play/%3Fplaylist_id%3D"+value+"%26order%3Ddefault\"}}";
                   //if (type.compare("youtube_playlist") == 0)	url = url2 + "{\"file\":\"plugin://plugin.video.youtube/%3Fpath=/root/video%26action%3Dplay_all%26playlist%3D"+value+"%26order%3Dshuffle\"}";
-                  if (type.compare("playlist") == 0)	url = url2 + "{\"file\":\""+value+"\"}" ;
-                  if (type.compare("radio") == 0)	url = url2 + "{\"file\":\"plugin://plugin.audio.radio_de/station/"+value+"\"}";
-                  if (type.compare("podcast") == 0)  url = url2_2 + "{\"directory\":\"rss://"+value+"\"}" ;
+                  if (type.compare("playlist") == 0)	url = url2 + "{\"file\":\""+value+"\"}}" ;
+                  if (type.compare("radio") == 0)	url = url2 + "{\"file\":\"plugin://plugin.audio.radio_de/station/"+value+"\"}}";
+                  if (type.compare("podcast") == 0)  url = url2_2 + "{\"directory\":\"rss://"+value+"\"}}" ;
                   if (type.compare("music_album") == 0) 
                   {
                       //Add album songs 
@@ -249,10 +249,13 @@ main(int argc, const char *argv[])
                   }
                 if ((option_random.compare("TRUE") == 0) || (pond < 2)) 
                    {
-                    url = url + url3;
+                      //url = url + url3;
                     get_url(url_base,url_setshuffle);                    
                     }
-                  else url = url + url3_2;
+                  else 
+                    {
+                      //url = url + url3_2;
+                    }
 
               }
     					else
@@ -264,28 +267,26 @@ main(int argc, const char *argv[])
     				sqlite3_finalize(statement);
     			}
                 
-            url = pre_url + url + post_url;
+      url = pre_url + url + post_url;
 	
 	//Performing request and Double Request
      	//sleep(1);
 
 
-       if (type.compare("youtube_playlist") == 0)  get_url(url_base,url_play_playlist);
-       if (type.compare("podcast") == 0)  get_url(url_base,url_play_playlist);
-       if (type.compare("music_artist") == 0)  get_url(url_base,url_play_playlist_musique);
-       if (type.compare("music_album") == 0)  get_url(url_base,url_play_playlist_musique);
-       if (type.compare("directory_album") == 0) 
+       if ((type.compare("youtube_playlist") == 0)||(type.compare("podcast") == 0))  
+          get_url(url_base,url_play_playlist);
+
+       if ((type.compare("music_artist") == 0)||(type.compare("music_album") == 0))  
+          get_url(url_base,url_play_playlist_musique);
+
+      if ((type.compare("directory_album") == 0)||(type.compare("video") == 0)||(type.compare("radio") == 0)||(type.compare("podcast") == 0))
           {
             get_url(url_base,url);
             get_url(url_base,url_visualisation);
           }
-       if (type.compare("podcast") == 0) 
-        {
-          get_url(url_base,url);
-          get_url(url_base,url_visualisation);
-        }
+       
 
-        }
+    }
 
         //Back Fwd gesture
           if ((id.compare(tab[0]) == 0)&&(id.compare(tab[1]) != 0))
@@ -335,8 +336,7 @@ main(int argc, const char *argv[])
 
         tab[0] = tab[1];
 
-        if (nfc_initiator_target_is_present(pnd, NULL
-          ) != 0)
+        if (nfc_initiator_target_is_present(pnd, NULL) != 0)
           tab[1] = ""; 
         else
           tab[1] = id;
