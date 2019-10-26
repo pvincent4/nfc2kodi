@@ -16,7 +16,7 @@ static std::string url4 = ",\"options\":{\"repeat\":\"all\"}";
 
 static std::string playlist_clear_video = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":1}}";
 static std::string playlist_clear_musique = pre_url + "\"method\":\"Playlist.Clear\",\"params\":{\"playlistid\":0}}";
-static std::string set_volume_max = pre_url + "\"method\":\"Application.SetVolume\",\"params\":{\"volume\":80}}"; 
+static std::string set_volume_max = pre_url + "\"method\":\"Application.SetVolume\",\"params\":{\"volume\":75}}"; 
 
 static std::string url_stop0 = pre_url + "\"method\":\"Player.Stop\",\"params\":{\"playerid\":0}}";
 static std::string url_stop1 = pre_url + "\"method\":\"Player.Stop\",\"params\":{\"playerid\":1}}";
@@ -26,6 +26,7 @@ static std::string url_visualisation = pre_url + "\"method\":\"GUI.ActivateWindo
 static std::string url_play_playlist = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":1}}}";
 static std::string url_play_playlist_musique = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":0}}}";
 static std::string url_setshuffle = pre_url + "\"method\":\"Player.SetShuffle\",\"params\":{\"playerid\":0,\"shuffle\":true}}";
+static std::string url_unsetshuffle = pre_url + "\"method\":\"Player.SetShuffle\",\"params\":{\"playerid\":0,\"shuffle\":false}}";
 
 static std::string url = pre_url + url2 + "{\"file\":\"/home/osmc/.kodi/userdata/playlists/music/songs.xsp\"}" + post_url;
 

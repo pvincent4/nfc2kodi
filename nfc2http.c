@@ -91,8 +91,8 @@ main(int argc, const char *argv[])
     std::string option_new; 
     std::string url_bis;
     int stats; 
-	int last_date; 
-	time_t now = time(0);
+  	int last_date; 
+  	time_t now = time(0);
 
     //Config vars > to move to config db
     lastfm_key = readconfig("lastfm_key",db_path);
@@ -224,16 +224,16 @@ main(int argc, const char *argv[])
             						std::string genre_name = a[1];
 
                       //Add other artist songs 
-                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8 , "playcount"); //10>5 / 0>8
-                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8 , "random"); //10>5 / 0>8
+                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8, (int)value, "playcount"); //10>5 / 0>8
+                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8, (int)value,  "random"); //10>5 / 0>8
                       
                       //Add other genre songs 
-                         object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value , "random"); //10>3 / 0>10
+                         object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value, "random"); //10>3 / 0>10
 
                       //Add similar artists songs
                           similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3);//10>1 / 0>6
                   }
-                  if (type.compare("music_artist") == 0)  
+                  if (type.compare("music_artist") == 0)
                   {
                       //Add artist songs 
                         std::array<std::string, 2> a1 = object2playlist("artistid", value, (int)0.2*pond+6, 0, "playcount"); //10>8 / 0>6
@@ -242,19 +242,20 @@ main(int argc, const char *argv[])
                         object2playlist("artistid", value, (int)-0.2*pond+8, 0, "random"); //10>6 / 0>8
 
                       //Add other genre songs 
-                         object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value , "random"); //10>3 / 0>10
+                        object2playlist("genre", genre_name, (int)-0.7*pond+10, 0, "random"); //10>3 / 0>10
 
                       //Add similar artists songs
-                          similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3);//10>1 / 0>6
+                        similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3); //10>1 / 0>6
                   }
                 if ((option_random.compare("TRUE") == 0) || (pond < 2)) 
                    {
                       //url = url + url3;
-                    get_url(url_base,url_setshuffle);                    
+                      get_url(url_base,url_setshuffle);
                     }
                   else 
                     {
                       //url = url + url3_2;
+                      get_url(url_base,url_unsetshuffle);
                     }
 
               }
@@ -315,6 +316,7 @@ main(int argc, const char *argv[])
         //Date update
             // convert now to string form
             //char* dt = ctime(&now);
+            now = time(0);
             std::string dt = std::to_string(now);
             std::string sql2 = "UPDATE tags set last_date = "+dt+" WHERE id ='"+id+"';";
             printf("%s\n",dt.c_str());
