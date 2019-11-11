@@ -224,8 +224,8 @@ main(int argc, const char *argv[])
             						std::string genre_name = a[1];
 
                       //Add other artist songs 
-                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8, (int)value, "playcount"); //10>5 / 0>8
-                         object2playlist("artist", artist_name, 5, (int)-0.3*pond+8, (int)value,  "random"); //10>5 / 0>8
+                         object2playlist("artist", artist_name, (int)-0.3*pond+8, (int)value, "playcount"); //10>5 / 0>8
+                         object2playlist("artist", artist_name, (int)-0.3*pond+8, (int)value,  "random"); //10>5 / 0>8
                       
                       //Add other genre songs 
                          object2playlist("genre", genre_name, (int)-0.7*pond+10, (int)value, "random"); //10>3 / 0>10
@@ -247,7 +247,7 @@ main(int argc, const char *argv[])
                       //Add similar artists songs
                         similarartist2playlist(artist_name, (int)-0.3*pond+3, (int)-0.3*pond+3); //10>1 / 0>6
                   }
-                if ((option_random.compare("TRUE") == 0) || (pond < 2)) 
+                if ((option_random.compare("TRUE") == 0) || (pond < 0)) 
                    {
                       //url = url + url3;
                       get_url(url_base,url_setshuffle);
@@ -285,7 +285,6 @@ main(int argc, const char *argv[])
             get_url(url_base,url);
             get_url(url_base,url_visualisation);
           }
-       
 
     }
 
@@ -294,7 +293,7 @@ main(int argc, const char *argv[])
           { 
               get_url(url_base,url_next0);
               get_url(url_base,url_next1);
-              get_url(url_base,url_visualisation);
+              //get_url(url_base,url_visualisation);
           }
           else
           {

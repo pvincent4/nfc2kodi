@@ -2,7 +2,6 @@
 static std::string buffer;
 static std::string lastfm_key;
 static int nb_whish_songs;
-//static char *db_path = "/home/osmc/0-nfc2http/kodinfc.sqlite";
 static char *db_path = "kodinfc.sqlite";
 
 static std::string url_base = "http://osmc.local/jsonrpc";
@@ -23,8 +22,12 @@ static std::string url_stop1 = pre_url + "\"method\":\"Player.Stop\",\"params\":
 static std::string url_next0 = pre_url + "\"method\":\"Player.GoTo\",\"params\":{\"playerid\":0,\"to\":\"next\"}" + post_url;
 static std::string url_next1 = pre_url + "\"method\":\"Player.GoTo\",\"params\":{\"playerid\":1,\"to\":\"next\"}" + post_url;
 static std::string url_visualisation = pre_url + "\"method\":\"GUI.ActivateWindow\",\"params\":{\"window\":\"visualisation\"}" + post_url;
+
 static std::string url_play_playlist = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":1}}}";
 static std::string url_play_playlist_musique = pre_url + "\"method\":\"Player.Open\",\"params\":{\"item\":{\"playlistid\":0}}}";
+static std::string url_get_playlist = pre_url + "\"method\":\"Playlist.GetItems\",\"params\":{\"properties\":[\"songid\"], \"playlistid\":1}}";
+static std::string url_get_playlist_musique = pre_url + "\"method\":\"Playlist.GetItems\",\"params\":{\"playlistid\":0}}";
+
 static std::string url_setshuffle = pre_url + "\"method\":\"Player.SetShuffle\",\"params\":{\"playerid\":0,\"shuffle\":true}}";
 static std::string url_unsetshuffle = pre_url + "\"method\":\"Player.SetShuffle\",\"params\":{\"playerid\":0,\"shuffle\":false}}";
 
@@ -75,6 +78,7 @@ std::string readconfig(std::string name, char *db_path)
     sqlite3_close(db);
    return (res);
 }
+
 
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 { 
@@ -142,7 +146,7 @@ static void get_url(std::string url, std::string params)
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, params.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
     //headers = curl_slist_append(headers, "Expect:");
     headers = curl_slist_append(headers, "Content-Type: application/json");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -159,6 +163,34 @@ static void get_url(std::string url, std::string params)
     curl_easy_cleanup(curl);
     printf("\nPage data:\n%s\n", buffer.c_str());
   }
+}
+
+
+bool checkplaylist(int songid_check)
+{
+    get_url(url_base,url_get_playlist_musique);
+    bool check = false;
+    try{
+        auto j2 = json::parse(buffer.c_str());
+        //std::cout << j1.dump(4) << std::endl;
+        //std::cout << j1;
+
+      //Parsing artists
+        int nb = j2["result"]["items"].size();
+        for (int i = 0; i < nb; ++i)
+        {
+          if (j2["result"]["items"][i]["id"].get<int>() == songid_check) check = true;
+        }
+        return check;
+    }
+     catch (json::exception& e)
+     {
+         // output exception information
+         std::cout << "message: " << e.what() << '\n'
+                   << "exception id: " << e.id << std::endl;
+     }
+    return check;
+
 }
 
 std::array<std::string, 2> object2playlist(std::string type, std::string value, int limit, int albumid_exclude, std::string sort)
@@ -200,12 +232,16 @@ std::array<std::string, 2> object2playlist(std::string type, std::string value, 
           {
             int songid = j["result"]["songs"][i]["songid"].get<int>();
             int albumid = j["result"]["songs"][i]["albumid"].get<int>();
+            
+            //Check presence in playlist
+              bool check = checkplaylist(songid);
+
             //Add songs to playlist
-            if (albumid_exclude != albumid) 
-            	{
-            		url_bis = pre_url + "\"method\": \"Playlist.Add\", \"params\": { \"playlistid\": 0,\"item\": { \"songid\": "+std::to_string(songid)+" } }}";
-            		get_url(url_base,url_bis);
-            	}
+              if ((albumid_exclude != albumid)&&(check==false))
+              	{
+              		url_bis = pre_url + "\"method\": \"Playlist.Add\", \"params\": { \"playlistid\": 0,\"item\": { \"songid\": "+std::to_string(songid)+" } }}";
+              		get_url(url_base,url_bis);
+              	}
           }
           //genre
           if (j["result"]["songs"][0]["artist"][0]!=NULL) artist_name = j["result"]["songs"][0]["artist"][0].get<std::string>();
